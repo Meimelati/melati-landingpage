@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Belajar Ceria - Game Edukasi SD</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icon -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap');
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #a8edf0 0%, #fed6e3 100%);
+            min-height: 100vh;
+        }
+
+        .font-game {
+            font-family: 'Fredoka One', cursive;
+        }
+
+        .card-bounce {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card-bounce:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .pulse-btn {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Animasi Efek Menang (Confetti) */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f2d74e;
+            animation: drop 3s infinite linear;
+        }
+
+        @keyframes drop {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(600px) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between p-4 md:p-8">
+
+    <!-- Header / Branding & Informasi Hak Cipta -->
+    <header class="bg-white/80 backdrop-blur-md rounded-2xl p-4 shadow-lg mb-6 border-4 border-yellow-300">
+        <div class="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-2">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-game text-indigo-600 flex items-center justify-center md:justify-start gap-2">
+                    <i class="fas fa-gamepad text-yellow-500"></i> Petualangan Belajar Ceria
+                </h1>
+                <p class="text-sm text-gray-600 font-semibold">Game Edukasi Interaktif Anak Sekolah Dasar</p>
+            </div>
+            <div class="bg-indigo-100 px-4 py-2 rounded-xl border border-indigo-200">
+                <p class="text-xs text-indigo-800 font-bold">Karya Hak Cipta:</p>
+                <p class="text-sm font-bold text-indigo-900"><i class="fas fa-user-check text-green-500"></i> Mei Melati RPL</p>
+                <p class="text-xs text-indigo-700"><i class="fas fa-school text-blue-500"></i> SMKS Cendikia Farma Husada</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Container Utama Game -->
+    <main class="max-w-3xl mx-auto w-full bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-indigo-200 relative my-auto">
+        
+        <!-- Layar 1: Halaman Depan / Pilih Pelajaran -->
+        <div id="start-screen" class="p-6 md:p-10 text-center">
+            <div class="mb-6">
+                <span class="text-6xl animate-bounce inline-block">🎒</span>
+                <h2 class="text-3xl font-game text-gray-800 mt-2">Pilih Mata Pelajaran!</h2>
+                <p class="text-gray-500 mt-1">Kumpulkan poin sebanyak-banyaknya dan dapatkan bintang!</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <!-- Matematika -->
+                <button onclick="startGame('mtk')" class="card-bounce bg-gradient-to-br from-red-400 to-pink-500 text-white p-6 rounded-2xl shadow-lg font-game text-xl flex flex-col items-center gap-3 border-b-4 border-red-700">
+                    <i class="fas fa-calculator text-4xl"></i>
+                    <span>Matematika</span>
+                </button>
+                <!-- IPA -->
+                <button onclick="startGame('ipa')" class="card-bounce bg-gradient-to-br from-green-400 to-emerald-600 text-white p-6 rounded-2xl shadow-lg font-game text-xl flex flex-col items-center gap-3 border-b-4 border-green-800">
+                    <i class="fas fa-flask text-4xl"></i>
+                    <span>IPA</span>
+                </button>
+                <!-- Bahasa Indonesia -->
+                <button onclick="startGame('bind')" class="card-bounce bg-gradient-to-br from-blue-400 to-indigo-600 text-white p-6 rounded-2xl shadow-lg font-game text-xl flex flex-col items-center gap-3 border-b-4 border-blue-800">
+                    <i class="fas fa-book-open text-4xl"></i>
+                    <span>Bahasa Indonesia</span>
+                </button>
+            </div>
+
+            <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200 text-yellow-800 text-sm">
+                <i class="fas fa-star text-yellow-500"></i> Setiap soal bernilai 20 Poin. Ayo selesaikan semua kuis!
+            </div>
+        </div>
+
+        <!-- Layar 2: Pengerjaan Kuis -->
+        <div id="quiz-screen" class="p-6 md:p-10 hidden">
+            <!-- Progress Bar & Skor -->
+            <div class="flex justify-between items-center mb-6 bg-indigo-50 p-4 rounded-2xl border border-indigo-100">
+                <div class="flex items-center gap-2">
+                    <span id="subject-badge" class="bg-indigo-600 text-white font-game px-3 py-1 rounded-lg text-sm">Matematika</span>
+                    <span id="question-number" class="text-gray-600 font-bold text-sm">Soal 1/5</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-trophy text-yellow-500 text-xl"></i>
+                    <span id="score-text" class="font-game text-2xl text-indigo-900">0</span>
+                </div>
+            </div>
+
+            <!-- Teks Soal -->
+            <div class="mb-8 text-center bg-sky-50 p-6 rounded-2xl border-2 border-sky-100 shadow-inner">
+                <h3 id="question-text" class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed">
+                    Berapakah hasil dari 5 + 3?
+                </h3>
+            </div>
+
+            <!-- Pilihan Jawaban -->
+            <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- Tombol pilihan dimasukkan melalui JavaScript -->
+            </div>
+
+            <!-- Pesan Umpan Balik (Benar/Salah) -->
+            <div id="feedback" class="text-center font-game text-xl h-8"></div>
+        </div>
+
+        <!-- Layar 3: Hasil Akhir -->
+        <div id="result-screen" class="p-6 md:p-10 text-center hidden">
+            <div id="confetti-container"></div>
+            
+            <div class="mb-4">
+                <span id="result-emoji" class="text-7xl">🏆</span>
+            </div>
+            
+            <h2 class="text-3xl font-game text-gray-800 mb-2">Hore! Kuis Selesai!</h2>
+            <p id="result-message" class="text-gray-600 font-semibold mb-6">Kamu telah menyelesaikan permainan dengan sangat baik!</p>
+
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 rounded-2xl shadow-xl max-w-sm mx-auto mb-8 border-4 border-yellow-300">
+                <p class="text-sm uppercase tracking-wider font-bold text-indigo-200">Total Skor Kamu</p>
+                <p id="final-score" class="text-6xl font-game my-2 text-yellow-300">100</p>
+                <div id="stars-container" class="text-2xl text-yellow-400 mt-2">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-4">
+                <button onclick="resetGame()" class="pulse-btn bg-yellow-400 hover:bg-yellow-500 text-indigo-900 font-game px-8 py-3 rounded-2xl shadow-lg border-b-4 border-yellow-600 text-lg flex items-center gap-2">
+                    <i class="fas fa-redo"></i> Main Lagi
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer / Hak Cipta Tambahan -->
+    <footer class="mt-6 text-center text-gray-700 text-xs font-semibold">
+        <p>&copy; Game Edukasi Anak SD. Hak Cipta dilindungi.</p>
+        <p class="mt-1">Dibuat oleh <span class="text-indigo-800 font-bold">Mei Melati RPL</span> | <span class="text-indigo-800 font-bold">SMKS Cendikia Farma Husada</span></p>
+    </footer>
+
+    <!-- Logika Game JavaScript -->
+    <script>
+        // Database Soal
+        const quizData = {
+            mtk: [
+                { q: "Berapakah hasil dari 12 + 15?", options: ["25", "27", "28", "30"], answer: 1 },
+                { q: "Ibu membeli 10 buah apel, lalu dimakan 3 buah. Sisa apel ibu adalah...", options: ["6", "7", "8", "5"], answer: 1 },
+                { q: "Bangun datar yang memiliki 3 buah sisi adalah...", options: ["Persegi", "Lingkaran", "Segitiga", "Trapesium"], answer: 2 },
+                { q: "Berapakah hasil dari 5 x 4?", options: ["15", "20", "25", "30"], answer: 1 },
+                { q: "Angka yang berada di antara 49 dan 51 adalah...", options: ["48", "50", "52", "53"], answer: 1 }
+            ],
+            ipa: [
+                { q: "Hewan yang hidup di air dan bernapas dengan insang adalah...", options: ["Kucing", "Ikan", "Burung", "Kelinci"], answer: 1 },
+                { q: "Bagian tumbuhan yang berada di dalam tanah adalah...", options: ["Daun", "Bunga", "Akar", "Buah"], answer: 2 },
+                { q: "Matahari terbit dari sebelah...", options: ["Barat", "Timur", "Utara", "Selatan"], answer: 1 },
+                { q: "Benda berikut yang termasuk benda cair adalah...", options: ["Batu", "Pensil", "Minyak goreng", "Buku"], answer: 2 },
+                { q: "Hewan pemakan tumbuhan disebut...", options: ["Herbivora", "Karnivora", "Omnivora", "Insectivora"], answer: 0 }
+            ],
+            bind: [
+                { q: "Lawan kata (antonim) dari 'Besar' adalah...", options: ["Panjang", "Kecil", "Tinggi", "Sedikit"], answer: 1 },
+                { q: "Sebelum makan kita sebaiknya...", options: ["Mandi", "Mencuci tangan", "Tidur", "Belajar"], answer: 1 },
+                { q: "Ibu memasak di...", options: ["Kamar mandi", "Dapur", "Halaman", "Garasi"], answer: 1 },
+                { q: "Tanda baca yang digunakan untuk mengakhiri kalimat berita adalah...", options: ["Tanda tanya (?)", "Tanda seru (!)", "Tanda titik (.)", "Tanda koma (,)"], answer: 2 },
+                { q: "Anak yang suka membantu orang tua disebut anak yang...", options: ["Rajin", "Nakal", "Penyendiri", "Pemalas"], answer: 0 }
+            ]
+        };
+
+        // State Game
+        let currentSubject = '';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let questions = [];
+
+        // Element DOM
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        
+        const subjectBadge = document.getElementById('subject-badge');
+        const questionNumber = document.getElementById('question-number');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const scoreText = document.getElementById('score-text');
+        const feedback = document.getElementById('feedback');
+
+        // Fungsi Memulai Game
+        function startGame(subject) {
+            currentSubject = subject;
+            questions = quizData[subject];
+            currentQuestionIndex = 0;
+            score = 0;
+
+            const names = { mtk: 'Matematika', ipa: 'IPA', bind: 'Bahasa Indonesia' };
+            subjectBadge.innerText = names[subject];
+
+            startScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        // Memuat Soal
+        function loadQuestion() {
+            feedback.innerText = '';
+            scoreText.innerText = score;
+            
+            const q = questions[currentQuestionIndex];
+            questionNumber.innerText = `Soal ${currentQuestionIndex + 1}/${questions.length}`;
+            questionText.innerText = q.q;
+
+            optionsContainer.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'card-bounce bg-white hover:bg-indigo-50 text-gray-800 font-semibold p-4 rounded-xl border-2 border-indigo-200 text-left shadow flex items-center justify-between transition-all';
+                btn.innerHTML = `<span>${opt}</span> <i class="fas fa-chevron-right text-indigo-300"></i>`;
+                btn.onclick = () => selectOption(idx);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        // Memilih Jawaban
+        function selectOption(index) {
+            const q = questions[currentQuestionIndex];
+            const buttons = optionsContainer.querySelectorAll('button');
+
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (index === q.answer) {
+                score += 20;
+                scoreText.innerText = score;
+                buttons[index].classList.remove('bg-white', 'border-indigo-200');
+                buttons[index].classList.add('bg-green-500', 'text-white', 'border-green-600');
+                feedback.innerHTML = '<span class="text-green-600"><i class="fas fa-check-circle"></i> Hebat! Jawaban Benar!</span>';
+            } else {
+                buttons[index].classList.remove('bg-white', 'border-indigo-200');
+                buttons[index].classList.add('bg-red-500', 'text-white', 'border-red-600');
+                buttons[q.answer].classList.remove('bg-white', 'border-indigo-200');
+                buttons[q.answer].classList.add('bg-green-500', 'text-white', 'border-green-600');
+                feedback.innerHTML = '<span class="text-red-500"><i class="fas fa-times-circle"></i> Ups! Masih Kurang Tepat.</span>';
+            }
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, 1500);
+        }
+
+        // Menampilkan Hasil
+        function showResult() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            document.getElementById('final-score').innerText = score;
+
+            const starsContainer = document.getElementById('stars-container');
+            const resultEmoji = document.getElementById('result-emoji');
+            const resultMessage = document.getElementById('result-message');
+
+            if (score === 100) {
+                resultEmoji.innerText = "🌟🏆🌟";
+                resultMessage.innerText = "Luar Biasa! Kamu menjawab semua dengan sempurna!";
+                starsContainer.innerHTML = '<i class="fas fa-star text-yellow-400"></i> <i class="fas fa-star text-yellow-400"></i> <i class="fas fa-star text-yellow-400"></i>';
+                createConfetti();
+            } else if (score >= 60) {
+                resultEmoji.innerText = "👏🎉";
+                resultMessage.innerText = "Bagus sekali! Tetap semangat belajar ya!";
+                starsContainer.innerHTML = '<i class="fas fa-star text-yellow-400"></i> <i class="fas fa-star text-yellow-400"></i> <i class="far fa-star text-yellow-400"></i>';
+            } else {
+                resultEmoji.innerText = "💪😊";
+                resultMessage.innerText = "Jangan berkecil hati! Coba lagi dan dapatkan nilai sempurna!";
+                starsContainer.innerHTML = '<i class="fas fa-star text-yellow-400"></i> <i class="far fa-star text-yellow-400"></i> <i class="far fa-star text-yellow-400"></i>';
+            }
+        }
+
+        // Reset Game
+        function resetGame() {
+            resultScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+            document.getElementById('confetti-container').innerHTML = '';
+        }
+
+        // Animasi Efek Menang
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#f2d74e', '#95e1d3', '#eaffd0', '#fce38a', '#ff7597'];
+            
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(confetti);
+            }
+        }
+    </script>
+</body>
+</html>
